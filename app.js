@@ -51,3 +51,5 @@ async function start() {
     console.log(`Example app listening at http://localhost:${port}, ${process.env.NODE_ENV}`)
   })
 }
+
+start();
