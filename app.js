@@ -1,51 +1,105 @@
-const express = require('express')
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+require('dotenv').config();
+const express = require('express');
+const bodyParser = require('body-parser');
+
+
+const jsonParser = bodyParser.json()
+const urlencodedParser = bodyParser.urlencoded({ extended: false })
+
+const { Sequelize, DataTypes } = require('sequelize');
+
+const dbName = process.env.DATABASE_NAME;
+const dbDialect = process.env.DATABASE_DIALECT;
+const dbPassword = process.env.DATABASE_PASSWORD;
+const dbUser = process.env.DATABASE_USER;
+const dbHost = process.env.DATABASE_HOST;
+
+const sequelize = new Sequelize(dbName, dbUser, dbPassword, {
+  host: dbHost,
+  dialect: dbDialect
+});
+console.log(sequelize);
+
+const Diputado = sequelize.define('diputado', {
+  id: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+    primaryKey: true,
+  },
+  identificacion: {
+    type: DataTypes.STRING(255),
+  },
+  email: {
+    type: DataTypes.STRING(255),
+  },
+  nombre: {
+    type: DataTypes.STRING(255),
+  },
+  apellido: {
+    type: DataTypes.STRING(255),
+  },
+  img: {
+    type: DataTypes.STRING(255),
+  },
+  imgCompleta: {
+    type: DataTypes.STRING(255),
+  },
+  descripcion: {
+    type: DataTypes.STRING(255),
+  },
+  biografia: {
+    type: DataTypes.TEXT(),
+  },
+  disponible: {
+    type: DataTypes.INTEGER(1),
+  },
+  idPartido: {
+    type: DataTypes.STRING(255),
+  },
+  idEstado: {
+    type: DataTypes.STRING(255),
+  },
+  createdUsu: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+  },
+  updatedUsu: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+  },
+  createdAt: {
+    type: DataTypes.TIME,
+    allowNull: false,
+  },
+  updatedAt: {
+    type: DataTypes.TIME,
+    allowNull: false,
+  },
+},
+{
+  tableName: "diputado",
+});
+
 const app = express()
 const port = 8080
 
-const params = {
-	protocol: process.env.DATABASE_PROTOCOL,
-	user: process.env.DATABASE_USER,
-	password: process.env.DATABASE_PASSWORD,
-	cluster: process.env.DATABASE_CLUSTER,
-	db: process.env.DEFAULT_DATABASE
-};
-
-const options = {
-	useNewUrlParser: true,
-	useUnifiedTopology: true
-};
-
-const ArticleSchema = new Schema({
-	name: String,
-  title: String,
-  content: String
-});
-
 async function start() {
-  mongoose.connect(`${params.protocol}://${params.user}:${params.password}@${params.cluster}/${params.db}`, options);
-
-  const Article = mongoose.model('Article', ArticleSchema);
-
+  sequelize.sync();
+  
   app.get('/', async (req, res) => {
     res.json({
       message: 'Hello world'
     });
   });  
 
-  app.get('/articles', async (req, res) => {
-    const articles = await Article.find();
-    res.json(articles);
-  });
+  app.get('/diputados', async (req, res) => {
+    let diputados = await Diputado.findAll();
+    res.json(diputados);
+  })
 
-  app.post('/articles', async (req, res) => {
-    const article = new Article();
-    article.title = 'Hola';
-    article.content = 'Mundo';
-    await article.save();
-    res.json(article);
-  });
+  app.post('/diputados', urlencodedParser, async (req, res) => {
+    res.json(req.body);
+  })
 
   app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}, ${process.env.NODE_ENV}`)
