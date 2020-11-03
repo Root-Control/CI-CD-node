@@ -27,7 +27,13 @@ async function start() {
   mongoose.connect(`${params.protocol}://${params.user}:${params.password}@${params.cluster}/${params.db}`, options);
 
   const Article = mongoose.model('Article', ArticleSchema);
-  
+
+  app.get('/', async (req, res) => {
+    res.json({
+      message: 'Hello world'
+    });
+  });  
+
   app.get('/articles', async (req, res) => {
     const articles = await Article.find();
     res.json(articles);
