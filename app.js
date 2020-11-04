@@ -7,6 +7,7 @@ const jsonParser = bodyParser.json()
 const urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 const { Sequelize, DataTypes } = require('sequelize');
+const publicIp = require('public-ip');
 
 const dbName = process.env.DATABASE_NAME;
 const dbDialect = process.env.DATABASE_DIALECT;
@@ -18,7 +19,6 @@ const sequelize = new Sequelize(dbName, dbUser, dbPassword, {
   host: dbHost,
   dialect: dbDialect
 });
-console.log(sequelize);
 
 const Diputado = sequelize.define('diputado', {
   id: {
@@ -88,17 +88,25 @@ async function start() {
   
   app.get('/', async (req, res) => {
     res.json({
-      message: 'Hello world'
+      message: 'getting ip'
     });
   });  
 
   app.get('/diputados', async (req, res) => {
     let diputados = await Diputado.findAll();
+    const serverIp = await publicIp.v4();
+    const response = {
+      serverIp,
+      diputados
+    }
     res.json(diputados);
   })
 
   app.post('/diputados', urlencodedParser, async (req, res) => {
-    res.json(req.body);
+    const serverIp = await publicIp.v4();
+    res.json({
+      serverIp
+    });
   })
 
   app.listen(port, () => {
