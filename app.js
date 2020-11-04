@@ -99,7 +99,7 @@ async function start() {
       serverIp,
       diputados
     }
-    res.json(diputados);
+    res.json(response);
   })
   
 
