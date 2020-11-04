@@ -101,6 +101,7 @@ async function start() {
     }
     res.json(diputados);
   })
+  
 
   app.post('/diputados', urlencodedParser, async (req, res) => {
     const serverIp = await publicIp.v4();
